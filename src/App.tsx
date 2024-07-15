@@ -28,7 +28,7 @@ function Cake({ position, scale, onClick ,imageUrl }: Props) {
       scale={[scale, scale, scale]}  // Apply scale transformation
       onClick={onClick}
       args={[1, 1, 2, 32]}  // Cylinder dimensions and segment count
-      material={new MeshBasicMaterial({ map: texture })}  // Apply the texture to the material
+      material={new MeshBasicMaterial({ map: Array.isArray(texture) ? texture[0] : texture })}  // Apply the texture to the material
 
     />
   );
@@ -50,31 +50,24 @@ const originalCakes: CakeType[] = [
   { id: 4, name: 'Lemon Cake', position: [0, 0, -2], scale: 1, color: '#FFFACD' , imageUrl: Principito},
 ];
 
-function CameraFocus({ selectedCake }) {
+type CameraFocusProps = {
+  selectedCake: CakeType | null;  // Use your CakeType definition
+};
+
+function CameraFocus({ selectedCake }: CameraFocusProps) {
   const { camera, scene } = useThree();
 
   useEffect(() => {
     if (selectedCake) {
-      // Set the position of the camera in front of the selected cake
-      // This example assumes the cake is faced along the Z-axis.
-      // Adjust these values to suit the scale and layout of your scene.
-      camera.position.x = selectedCake.position[0]; // Align with cake's X coordinate
-      camera.position.y = selectedCake.position[1] + 5 ; // Align with cake's Y coordinate (adjusted for a better height)
-      camera.position.z = selectedCake.position[2] + 5; // Set some distance along Z-axis in front of the cake
-
-      // Point the camera to look directly at the selected cake
+      camera.position.x = selectedCake.position[0];
+      camera.position.y = selectedCake.position[1] + 5;
+      camera.position.z = selectedCake.position[2] + 5;
       camera.lookAt(selectedCake.position[0], selectedCake.position[1], selectedCake.position[2]);
-
-      // Update the camera's up vector to ensure it's oriented correctly.
-      // This is often necessary if the orientation seems tilted or upside down.
       camera.up.set(0, 5, 0);
-
-      // Ensuring the scene and camera matrices are updated after manual changes
       camera.updateMatrixWorld();
       scene.updateMatrixWorld();
     }
   }, [selectedCake, camera, scene]);
-
 
   return null;
 }
